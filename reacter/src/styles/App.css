@@ -1,0 +1,133 @@
+/* input[type="button"], */
+button {
+  background: none;
+  border: 0;
+  color: inherit;
+  cursor: default;
+  font: inherit;
+  line-height: normal;
+  overflow: visible;
+  padding: 0; }
+
+html {
+  overflow-y: scroll; }
+
+* {
+  box-sizing: border-box; }
+
+body {
+  /* background:blue; */
+  font-size: 16px;
+  font-family: "Crimson Text", serif;
+  line-height: 1.5rem; }
+
+html {
+  background: blue; }
+
+button {
+  font-family: "Open Sans", sans-serif; }
+
+.wrapper {
+  min-height: 100vh;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 1rem;
+  display: flex;
+  align-items: center; }
+
+.container.page-container {
+  background: rgba(0, 0, 0, 0.1);
+  width: 80%;
+  height: 100%;
+  margin: 0 auto;
+  margin-top: 3rem;
+  padding: 1rem; }
+
+.container.control-panel {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.8);
+  height: 100px; }
+
+.container.control-panel > button {
+  width: 100%;
+  height: 100%;
+  color: rgba(0, 0, 0, 0.7);
+  border-left: 2px solid rgba(0, 0, 0, 0.1);
+  font-size: 2.5rem;
+  text-transform: uppercase;
+  cursor: pointer; }
+
+.container.control-panel button:first-child {
+  border-left: none; }
+
+.container.control-panel button:hover {
+  background: rgba(255, 255, 255, 0.2);
+  text-decoration: underline; }
+
+.container.tweet-container {
+  margin-top: 2rem;
+  height: 100%;
+  min-height: 50vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column; }
+
+.tweet-box {
+  background: rgba(255, 255, 255, 0.85);
+  transition: transform .1s;
+  font-size: 1.2rem;
+  line-height: 1.5rem;
+  margin-top: 1rem;
+  margin-bottom: 1rem; }
+
+.tweet-box:hover {
+  transform: scale3d(1.01, 1.01, 1.01); }
+
+.tweet-box-content {
+  margin: 1rem; }
+
+.tweet-text-content {
+  line-height: 2rem; }
+
+.tweet-status {
+  padding: 1rem;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  border-radius: 5px; }
+
+.tweet-metadata {
+  font-size: 1rem; }
+
+.tweet-metadata,
+.tweet-metadata-buttons {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: space-around; }
+
+.tweet-popularity {
+  float: right; }
+
+.tweet-status {
+  background: rgba(255, 255, 255, 0.4);
+  width: 100%; }
+
+.tweet-user-location {
+  line-height: 1.5rem;
+  font-size: .9rem; }
+
+.tweet-image {
+  padding: 1rem;
+  transition: transform .2s;
+  display: flex;
+  justify-content: center; }
+
+.tweet-image > img {
+  max-height: 20vh; }
+
+.tweet-image > img:hover {
+  transform: scale(5); }
+
+/*   font-family: "Open Sans", sans-serif; */
+/* color: rgba(0,0,0, 0.9); */
