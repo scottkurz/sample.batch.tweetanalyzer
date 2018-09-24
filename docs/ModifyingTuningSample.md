@@ -41,20 +41,18 @@ Go to the reacter folder and ```npm install```. Run ```npm start``` to preview y
 
      `git rm -r src/main/webapp/`
 
-3. Restore web.xml
+3. Copy over reacter build
 
-     `git checkout  HEAD -- src/main/webapp/WEB-INF/web.xml`
+    `cp -r reacter/build/* src/main/webapp/ `
 
-4. Commit web.xml
-
-    `git add src/main/webapp/WEB-INF/web.xml`
-
-5. Copy over reacter build
-
-    `cp -r reacter/build/* src/main/webapp/`
-
-6. Add new to Git
+4. Add new to Git
 
     `git add src/main/webapp/`
 
 Now proceed to do a commit, etc.
+
+## NPM Audit
+
+As seen [here](https://docs.npmjs.com/getting-started/running-a-security-audit#running-a-security-audit-with-npm-audit), you can run `npm audit` and `npm audit fix` to resolve security issues with underlying dependencies.
+
+**TODO:**  Elaborate on this process.
