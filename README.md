@@ -17,7 +17,7 @@ https://developer.twitter.com/en/apply-for-access
 
 #### Access from sample
 
-Store these in a file named **twitter4j.properties** in any directory you like.  You will reference later, via the "snatcher" utility.  
+Store these in a file named **twitter4j.properties** in any directory you like.  You will reference these later, via the "snatcher" utility.  
 
 It should look like:
 
@@ -42,7 +42,7 @@ https://console.bluemix.net/docs/services/watson/getting-started-credentials.htm
 
 #### Access from sample
 
-Store these in a file named **watson.properties** in any directory you like.  You will reference later as a batch "job property".
+Store these in a file named **watson.properties** in any directory you like.  You will reference these later as a batch "job property".
 
 It should look like:
 
@@ -76,15 +76,16 @@ then build and run with:
 This will use Twitter4J to start up a stream listening to Twitter for Tweets about the New York City subway system.
 
 The tweet snatcher will save incoming tweets that match your desired criteria, writing them to the **snatcher/tweets** folder in a file named by date and time. 
-Every minute, it will roll over to a new file.
+Every minute, it will roll over to a new file.  A dot is printed for each tweet captured.
  
-Allow the snatcher to run for as long as you please, then hit *Return/Enter* to stop.  Rename/copy the folder somewhere (which you will reference later).
+Allow the snatcher to run for as long as you please, then hit *Return/Enter* to stop.  Note that the snatcher might not immediately stop.  A new tweet needs to be captured to 'wake up' the snatcher so it can notice the enter.
+Rename/copy the folder somewhere (which you will reference later).
 
 You are now ready to proceed to the batch process/visualization step. 
 
 ### Custom tags
 
-To filter with other tags, follow the properties file name with a space and a comma (no spaces) separated list of tags.
+To filter with other tags, follow the properties file name with a space and a comma separated (no spaces) list of tags.
 
 ```mvn exec:java -Dexec.args="/path/to/twitter.properties  #myTopic,mytopic"``` 
 
