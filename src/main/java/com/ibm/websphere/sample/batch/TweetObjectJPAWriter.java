@@ -64,19 +64,20 @@ public class TweetObjectJPAWriter implements ItemWriter {
 	public void writeItems(List<java.lang.Object> arg0) {
         try {
 
-        	log.log(Level.INFO, "Writing items");
+        	log.log(Level.FINE, "Writing items");
         	
         	// Loop through all the items
             for (int i = 0; i < arg0.size(); i++) {
 
                 TweetObject tw = (TweetObject) arg0.get(i);
 
-                log.log(Level.INFO, "writing tweet "+tw.getTextContent());
+                log.log(Level.FINER, "writing tweet "+tw.getTextContent());
                 
                 persistTweet(tw);
             }
         } catch (Exception e) {
-        	log.log(Level.INFO, "Something went wrong : " + e);
+        	log.log(Level.SEVERE, "Something went wrong : " + e);
+            throw new RuntimeException(e);
         }
     }
 
@@ -119,7 +120,8 @@ public class TweetObjectJPAWriter implements ItemWriter {
                 entityManager.persist(newTweet);
             }
         } catch (Exception e) {
-            log.log(Level.INFO, "Something went wrong persisting the tweets. Caught exception " + e);
+            log.log(Level.SEVERE, "Something went wrong persisting the tweets. Caught exception " + e);
+            throw new RuntimeException(e);
         }
                 
     }
