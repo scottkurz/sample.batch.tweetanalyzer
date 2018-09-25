@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package application.fetcher;
+package com.ibm.websphere.sample.fetcher;
 
 import java.io.IOException;
 
