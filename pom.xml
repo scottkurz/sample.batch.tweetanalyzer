@@ -160,8 +160,11 @@
                         <type>zip</type>
                     </assemblyArtifact>
                     <configFile>src/main/liberty/config/server.xml</configFile>
-                    <skipTestServer>true</skipTestServer>
+                    <features>
+                        <acceptLicense>true</acceptLicense>
+                    </features>
                     <include>${packaging.type}</include>
+                    <skipTestServer>true</skipTestServer>
                     <bootstrapProperties>
                         <db.url>${db.url}</db.url>
                         <appContext>${warContext}</appContext>
@@ -170,20 +173,6 @@
                         <appLocation>${project.artifactId}.war</appLocation>
                     </bootstrapProperties>
                 </configuration>
-                <executions>
-                    <execution>
-                        <id>install-feature</id>
-                        <phase>prepare-package</phase>
-                        <goals>
-                            <goal>install-feature</goal>
-                        </goals>
-                        <configuration>
-                            <features>
-                                <acceptLicense>true</acceptLicense>
-                            </features>
-                        </configuration>
-                    </execution>
-                </executions>                
             </plugin>
         </plugins>
     </build>
