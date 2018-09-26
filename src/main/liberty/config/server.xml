@@ -52,8 +52,6 @@
         <properties.derby.embedded createDatabase="create" databaseName="${db.url}" user="user" password="pass"/>
     </dataSource>
     
-    <applicationMonitor updateTrigger="mbean"/>
-
     <keyStore id="defaultKeyStore" password="Liberty"/>
 
     <basicRegistry id="basic" realm="ibm/api">
