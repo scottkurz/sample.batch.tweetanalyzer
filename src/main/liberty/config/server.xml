@@ -53,6 +53,9 @@
     
     <keyStore id="defaultKeyStore" password="Liberty"/>
 
+    <!-- Default is too quick and can result in double-updates in Maven build -->
+    <applicationMonitor updateTrigger="polled" pollingRate="2500ms" />
+
     <basicRegistry id="basic" realm="ibm/api">
         <user name="bob" password="bobpwd"/>
         <user name="jane" password="janepwd"/>
