@@ -42,13 +42,13 @@
     <!-- This enables batch persistence using the default database store  -->
     <dataSource id="DefaultDataSource" type="javax.sql.XADataSource">
         <jdbcDriver libraryRef="DerbyLib"/>
-        <properties.derby.embedded createDatabase="create" databaseName="${db.url}" user="user" password="pass"/>
+        <properties.derby.embedded createDatabase="create" databaseName="${jobrepository.db.url}" user="user" password="pass"/>
     </dataSource>
 
     <!-- Used by the application to persist analyzed tweets -->
     <dataSource id="tweetDB" jndiName="jdbc/tweetstorage" type="javax.sql.XADataSource">
         <jdbcDriver libraryRef="DerbyLib"/>
-        <properties.derby.embedded createDatabase="create" databaseName="${db.url}" user="user" password="pass"/>
+        <properties.derby.embedded createDatabase="create" databaseName="${tweets.analyzed.db.url}" user="user" password="pass"/>
     </dataSource>
     
     <keyStore id="defaultKeyStore" password="Liberty"/>

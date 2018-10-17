@@ -35,7 +35,8 @@
         <testServerHttpPort>9080</testServerHttpPort>
         <testServerHttpsPort>9443</testServerHttpsPort>
         <warContext>/web</warContext>
-        <db.url>${project.build.directory}/liberty/wlp/usr/shared/TweetDB</db.url>
+        <tweets.analyzed.db.url>${project.build.directory}/liberty/wlp/usr/shared/resources/TweetAnalysisDB</tweets.analyzed.db.url>
+        <jobrepository.db.url>${project.build.directory}/liberty/wlp/usr/shared/JobRepositoryDB</jobrepository.db.url>
         <packaging.type>usr</packaging.type>
     </properties>
     <profiles>
@@ -90,7 +91,7 @@
                             <goal>copy-resources</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>${project.build.directory}/liberty/wlp/usr/shared/resources/sample-data</outputDirectory>
+                            <outputDirectory>${project.build.directory}/liberty/wlp/usr/shared/resources</outputDirectory>
                             <overwrite>false</overwrite>
                             <resources>
                                 <resource>
@@ -155,7 +156,8 @@
                     <include>${packaging.type}</include>
                     <skipTestServer>true</skipTestServer>
                     <bootstrapProperties>
-                        <db.url>${db.url}</db.url>
+                        <tweets.analyzed.db.url>${tweets.analyzed.db.url}</tweets.analyzed.db.url>
+                        <jobrepository.db.url>${jobrepository.db.url}</jobrepository.db.url>
                         <appContext>${warContext}</appContext>
                         <default.http.port>${testServerHttpPort}</default.http.port>
                         <default.https.port>${testServerHttpsPort}</default.https.port>
