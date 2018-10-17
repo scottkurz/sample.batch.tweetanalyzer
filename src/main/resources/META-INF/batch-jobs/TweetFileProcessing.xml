@@ -19,8 +19,12 @@
 	xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/jobXML_1_0.xsd"
 	id="TweetFileProcessing" restartable="true" version="1.0">
 	<properties>
-		<property name="defaultInputDir" value="/my/tweets"/>
-		<property name="defaultWatsonPropFile" value="/my/watson.properties"/>
+        <!-- 
+                 <property name="defaultInputDir" value="C:\git\tweet-muncher\data\short"/>
+             <property name="defaultInputDir" value="C:\git\tweet-muncher\data\tweets"/>
+ -->
+               <property name="defaultInputDir" value="#{systemProperties['shared.resource.dir']}/sample-data/tweets-snatched"/>
+               <property name="defaultWatsonPropFile" value="C:\git\tweet-muncher\data\watson.properties"/>
 		<property name="useWatson" value="true"/>
 	</properties>
 	<listeners>
