@@ -16,39 +16,37 @@
    limitations under the License.
 -->
 <job xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://xmlns.jcp.org/xml/ns/javaee"
-	xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/jobXML_1_0.xsd"
-	id="TweetFileProcessing" restartable="true" version="1.0">
-	<properties>
-        <!-- 
-             <property name="defaultInputDir" value="C:\git\tweet-muncher\data\tweets"/>
-                 <property name="defaultInputDir" value="C:\git\tweet-muncher\data\short"/>
- -->
-               <property name="defaultInputDir" value="#{systemProperties['shared.resource.dir']}/snatched-tweets"/>
-               <property name="defaultWatsonPropFile" value="C:\git\tweet-muncher\data\watson.properties"/>
-		<property name="useWatson" value="false"/>
-		<property name="disablePersistence" value="true"/>
-	</properties>
-	<listeners>
-		<listener ref="com.ibm.websphere.sample.batch.SimpleJobListener" />
-	</listeners>
-	<step id="TweetReader">
-		<chunk>
-			<reader ref="com.ibm.websphere.sample.batch.SerializedObjectMultiFileReader">
-				<properties>
-					<property name="inputDir" value="#{jobParameters['inputDir']}?:#{jobProperties['defaultInputDir']};" />
-				</properties>
-			</reader>
-			<processor ref="com.ibm.websphere.sample.batch.TweetProcessor">
-				<properties>
-					<property name="useWatson" value="#{jobParameters['useWatson']}?:#{jobProperties['useWatson']};" />
-					<property name="WatsonPropFile" value="#{jobParameters['WatsonPropFile']}?:#{jobProperties['defaultWatsonPropFile']};" />
-				</properties>
-			</processor>
+    xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/jobXML_1_0.xsd"
+    id="TweetFileProcessing" restartable="true" version="1.0">
+    <properties>
+        <property name="defaultInputDir" value="#{systemProperties['shared.resource.dir']}/snatched-tweets"/>
+        <property name="defaultWatsonPropFile" value="/my/watson.properties"/>
+
+        <!-- The next two are defaulted like this so the sample works "out-of-the-box" we pre-fetched data -->
+        <property name="useWatson" value="false"/>
+        <property name="disablePersistence" value="true"/>  
+    </properties>
+    <listeners>
+        <listener ref="com.ibm.websphere.sample.batch.SimpleJobListener" />
+    </listeners>
+    <step id="TweetReader">
+        <chunk>
+            <reader ref="com.ibm.websphere.sample.batch.SerializedObjectMultiFileReader">
+                <properties>
+                    <property name="inputDir" value="#{jobParameters['inputDir']}?:#{jobProperties['defaultInputDir']};" />
+                </properties>
+            </reader>
+            <processor ref="com.ibm.websphere.sample.batch.TweetProcessor">
+                <properties>
+                    <property name="useWatson" value="#{jobParameters['useWatson']}?:#{jobProperties['useWatson']};" />
+                    <property name="WatsonPropFile" value="#{jobParameters['WatsonPropFile']}?:#{jobProperties['defaultWatsonPropFile']};" />
+                </properties>
+            </processor>
             <writer ref="com.ibm.websphere.sample.batch.TweetObjectJPAWriter">
-				<properties>
-					<property name="disablePersistence" value="#{jobParameters['disablePersistence']}?:#{jobProperties['disablePersistence']};" />
-				</properties>
+                <properties>
+                    <property name="disablePersistence" value="#{jobParameters['disablePersistence']}?:#{jobProperties['disablePersistence']};" />
+                </properties>
             </writer>
-		</chunk>
-	</step>
+        </chunk>
+    </step>
 </job>

@@ -85,7 +85,9 @@
     <!-- Uncomment to send job output to console log -->
 <!-- 
     <logging consoleLogLevel="INFO"/>
+
  -->
+    <logging traceSpecification="com.ibm.websphere.sample.batch.*=all=enabled"/>
  
     
 </server>
