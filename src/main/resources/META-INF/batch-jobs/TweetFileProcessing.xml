@@ -20,12 +20,13 @@
 	id="TweetFileProcessing" restartable="true" version="1.0">
 	<properties>
         <!-- 
-                 <property name="defaultInputDir" value="C:\git\tweet-muncher\data\short"/>
              <property name="defaultInputDir" value="C:\git\tweet-muncher\data\tweets"/>
+                 <property name="defaultInputDir" value="C:\git\tweet-muncher\data\short"/>
  -->
-               <property name="defaultInputDir" value="#{systemProperties['shared.resource.dir']}/sample-data/tweets-snatched"/>
+               <property name="defaultInputDir" value="#{systemProperties['shared.resource.dir']}/snatched-tweets"/>
                <property name="defaultWatsonPropFile" value="C:\git\tweet-muncher\data\watson.properties"/>
-		<property name="useWatson" value="true"/>
+		<property name="useWatson" value="false"/>
+		<property name="disablePersistence" value="true"/>
 	</properties>
 	<listeners>
 		<listener ref="com.ibm.websphere.sample.batch.SimpleJobListener" />
@@ -43,7 +44,11 @@
 					<property name="WatsonPropFile" value="#{jobParameters['WatsonPropFile']}?:#{jobProperties['defaultWatsonPropFile']};" />
 				</properties>
 			</processor>
-			<writer ref="com.ibm.websphere.sample.batch.TweetObjectJPAWriter" />
+            <writer ref="com.ibm.websphere.sample.batch.TweetObjectJPAWriter">
+				<properties>
+					<property name="disablePersistence" value="#{jobParameters['disablePersistence']}?:#{jobProperties['disablePersistence']};" />
+				</properties>
+            </writer>
 		</chunk>
 	</step>
 </job>

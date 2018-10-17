@@ -21,10 +21,14 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.annotation.PostConstruct;
+import javax.batch.api.BatchProperty;
 import javax.batch.api.chunk.ItemWriter;
 import javax.enterprise.context.Dependent;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+
 
 /**
  * This class implements a JSR-352 ItemWriter.  It receives a list of objects from an
@@ -34,58 +38,72 @@ import javax.persistence.PersistenceContext;
 @Dependent
 public class TweetObjectJPAWriter implements ItemWriter {
 
-	private static final Logger log = Logger.getLogger( TweetObjectJPAWriter.class.getName() );
-	
+    @Inject
+    @BatchProperty(name = "disablePersistence")
+    String disablePersistenceProp;
+    Boolean disablePersistence;
+    
+    @PostConstruct
+    private void readProps() {
+        disablePersistence = Boolean.parseBoolean(disablePersistenceProp);
+    }
+
+    private static final Logger log = Logger.getLogger( TweetObjectJPAWriter.class.getName() );
+    
     @PersistenceContext(unitName = "tweet-persister")
     EntityManager entityManager;
 
-	
+    
     /**
      * Default constructor. 
      */
     public TweetObjectJPAWriter() {
     }
 
-	/**
+    /**
      * @see ItemWriter#open(Serializable)
      */
     public void open(Serializable arg0) {
+        if (disablePersistence) {
+            log.log(Level.FINE, "Persistence disabled");
+        }
     }
 
-	/**
+    /**
      * @see ItemWriter#close()
      */
     public void close() {
     }
 
-	/**
+    /**
      * Write a list of objects into a database using JPA
      */
-	public void writeItems(List<java.lang.Object> arg0) {
-        try {
-
-        	log.log(Level.FINE, "Writing items");
-        	
-        	// Loop through all the items
-            for (int i = 0; i < arg0.size(); i++) {
-
-                TweetObject tw = (TweetObject) arg0.get(i);
-
-                log.log(Level.FINER, "writing tweet "+tw.getTextContent());
+    public void writeItems(List<java.lang.Object> arg0) {
+        if (!disablePersistence) {
+            try {
+                log.log(Level.FINE, "Writing items");
                 
-                persistTweet(tw);
+                // Loop through all the items
+                for (int i = 0; i < arg0.size(); i++) {
+
+                    TweetObject tw = (TweetObject) arg0.get(i);
+
+                    log.log(Level.FINER, "writing tweet "+tw.getTextContent());
+                    
+                    persistTweet(tw);
+                }
+            } catch (Exception e) {
+                log.log(Level.SEVERE, "Something went wrong : " + e);
+                throw new RuntimeException(e);
             }
-        } catch (Exception e) {
-        	log.log(Level.SEVERE, "Something went wrong : " + e);
-            throw new RuntimeException(e);
         }
     }
 
-	/**
+    /**
      * @see ItemWriter#checkpointInfo()
      */
     public Serializable checkpointInfo() {
-			return null;
+            return null;
     }
 
     /**
@@ -94,13 +112,13 @@ public class TweetObjectJPAWriter implements ItemWriter {
      */
     public void persistTweet(TweetObject newTweet) {
         try {
-        	// Is this tweet already in the database?  
+            // Is this tweet already in the database?  
             boolean alreadyExists = entityManager
             .createQuery("SELECT f.statusId FROM TweetObject f WHERE f.statusId = " +
             newTweet.getStatusId())
             .setMaxResults(1).getResultList().isEmpty() ? false : true;
             
-        	// Skip if a duplicate in the database, but update the retweet/favorite counts
+            // Skip if a duplicate in the database, but update the retweet/favorite counts
             if (alreadyExists) {
 
             TweetObject loadedTweet = (TweetObject) entityManager
@@ -116,7 +134,7 @@ public class TweetObjectJPAWriter implements ItemWriter {
                 
                 entityManager.merge(loadedTweet);
             } else {
-            	// New tweet
+                // New tweet
                 entityManager.persist(newTweet);
             }
         } catch (Exception e) {
