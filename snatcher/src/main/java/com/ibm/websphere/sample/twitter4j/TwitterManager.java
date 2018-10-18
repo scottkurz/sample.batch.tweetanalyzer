@@ -61,8 +61,7 @@ public class TwitterManager {
 	
 	/**
 	 * Fires up the Tweet Status Listener and gives it the shared queue to put tweet Status objects in.
-	 * Note that we filter location roughly around New York City, but given so few tweets seem to actually
-	 * have location data, this might not really do very much.  
+	 * Note that we filter location roughly around New York City.  
 	 */
 	public void start() {
     	PropertyConfiguration pc = new PropertyConfiguration(props);
