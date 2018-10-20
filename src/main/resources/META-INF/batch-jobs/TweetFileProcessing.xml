@@ -24,7 +24,7 @@
 
         <!-- The next two are defaulted like this so the sample works "out-of-the-box" we pre-fetched data -->
         <property name="useWatson" value="false"/>
-        <property name="disablePersistence" value="true"/>  
+        <property name="persistAnalysis" value="false"/>
     </properties>
     <listeners>
         <listener ref="com.ibm.websphere.sample.batch.SimpleJobListener" />
@@ -44,7 +44,7 @@
             </processor>
             <writer ref="com.ibm.websphere.sample.batch.TweetObjectJPAWriter">
                 <properties>
-                    <property name="disablePersistence" value="#{jobParameters['disablePersistence']}?:#{jobProperties['disablePersistence']};" />
+                    <property name="persistAnalysis" value="#{jobParameters['persistAnalysis']}?:#{jobProperties['persistAnalysis']};" />
                 </properties>
             </writer>
         </chunk>

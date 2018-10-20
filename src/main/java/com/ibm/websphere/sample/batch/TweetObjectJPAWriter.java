@@ -39,13 +39,13 @@ import javax.persistence.PersistenceContext;
 public class TweetObjectJPAWriter implements ItemWriter {
 
     @Inject
-    @BatchProperty(name = "disablePersistence")
-    String disablePersistenceProp;
-    Boolean disablePersistence;
+    @BatchProperty(name = "persistAnalysis")
+    String persistAnalysisProp;
+    Boolean persistAnalysis;
     
     @PostConstruct
     private void readProps() {
-        disablePersistence = Boolean.parseBoolean(disablePersistenceProp);
+    	persistAnalysis = Boolean.parseBoolean(persistAnalysisProp);
     }
 
     private static final Logger log = Logger.getLogger( TweetObjectJPAWriter.class.getName() );
@@ -64,7 +64,7 @@ public class TweetObjectJPAWriter implements ItemWriter {
      * @see ItemWriter#open(Serializable)
      */
     public void open(Serializable arg0) {
-        if (disablePersistence) {
+        if (!persistAnalysis) {
             log.log(Level.FINE, "Persistence disabled");
         }
     }
@@ -79,7 +79,7 @@ public class TweetObjectJPAWriter implements ItemWriter {
      * Write a list of objects into a database using JPA
      */
     public void writeItems(List<java.lang.Object> arg0) {
-        if (!disablePersistence) {
+        if (persistAnalysis) {
             try {
                 log.log(Level.FINE, "Writing items");
                 
