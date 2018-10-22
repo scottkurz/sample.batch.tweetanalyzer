@@ -29,6 +29,8 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
+import com.ibm.websphere.sample.jpa.TweetEntity;
+
 
 /**
  * This class implements a JSR-352 ItemWriter.  It receives a list of objects from an
@@ -86,7 +88,7 @@ public class TweetObjectJPAWriter implements ItemWriter {
                 // Loop through all the items
                 for (int i = 0; i < arg0.size(); i++) {
 
-                    TweetObject tw = (TweetObject) arg0.get(i);
+                    TweetEntity tw = (TweetEntity) arg0.get(i);
 
                     log.log(Level.FINER, "writing tweet "+tw.getTextContent());
                     
@@ -108,21 +110,21 @@ public class TweetObjectJPAWriter implements ItemWriter {
 
     /**
      * Persist a tweet into the database
-     * @param newTweet The TweetObject containing information about the tweet
+     * @param newTweet The TweetEntity containing information about the tweet
      */
-    public void persistTweet(TweetObject newTweet) {
+    public void persistTweet(TweetEntity newTweet) {
         try {
             // Is this tweet already in the database?  
             boolean alreadyExists = entityManager
-            .createQuery("SELECT f.statusId FROM TweetObject f WHERE f.statusId = " +
+            .createQuery("SELECT f.statusId FROM TweetEntity f WHERE f.statusId = " +
             newTweet.getStatusId())
             .setMaxResults(1).getResultList().isEmpty() ? false : true;
             
             // Skip if a duplicate in the database, but update the retweet/favorite counts
             if (alreadyExists) {
 
-            TweetObject loadedTweet = (TweetObject) entityManager
-                    .createQuery("SELECT t FROM TweetObject t WHERE t.statusId = " + newTweet.getStatusId())
+            TweetEntity loadedTweet = (TweetEntity) entityManager
+                    .createQuery("SELECT t FROM TweetEntity t WHERE t.statusId = " + newTweet.getStatusId())
                     .getSingleResult();
 
                 Long oldFavs = loadedTweet.getFavoriteCount();
@@ -130,7 +132,7 @@ public class TweetObjectJPAWriter implements ItemWriter {
                 Long oldRetweets = loadedTweet.getRetweetCount();
                 Long newRetweets = newTweet.getRetweetCount();
                 loadedTweet.setFavoriteCount(newFavs > oldFavs ? newFavs : oldFavs);
-                loadedTweet.setFavoriteCount(newRetweets > oldRetweets ? newRetweets : oldRetweets);
+                loadedTweet.setRetweetCount(newRetweets > oldRetweets ? newRetweets : oldRetweets);
                 
                 entityManager.merge(loadedTweet);
             } else {

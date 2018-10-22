@@ -23,8 +23,6 @@ import javax.ejb.Startup;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
-import com.ibm.websphere.sample.batch.TestJobStarter;
-
 import java.util.logging.Logger;
 
 @Singleton

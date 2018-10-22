@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.ibm.websphere.sample.batch;
+package com.ibm.websphere.sample.jpa;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -29,7 +29,7 @@ import com.ibm.websphere.sample.watson.SentimentObject;
  */
 @Entity
 @Table(name = "TWEETS", schema = "TWITTERCOLLECTION")
-public class TweetObject implements Serializable {
+public class TweetEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
@@ -88,7 +88,7 @@ public class TweetObject implements Serializable {
      * Sets up a neutral SentimentObject by default also.
      * Everything else gets the Java defaults of zero/false.
      */
-    public TweetObject() {
+    public TweetEntity() {
         this.screenName = "";
         this.realName = "";
         this.quotedAuthorRealName = "";

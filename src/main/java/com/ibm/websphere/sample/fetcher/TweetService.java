@@ -31,7 +31,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import java.util.logging.Logger;
 import com.google.gson.Gson;
-import com.ibm.websphere.sample.batch.TweetObject;
+import com.ibm.websphere.sample.jpa.TweetEntity;
 
 @Dependent
 @Path("tweets")
@@ -41,7 +41,7 @@ public class TweetService {
     @PersistenceContext(unitName = "tweet-persister")
     EntityManager entityManager;
 
-    List<TweetObject> tweets = new ArrayList<TweetObject>();
+    List<TweetEntity> tweets = new ArrayList<TweetEntity>();
 
     @GET
     @Path("/")
@@ -54,9 +54,9 @@ public class TweetService {
         endingPoint = 150;
         String jql;
         if (category.equals("popularity")) {
-            jql = "SELECT t FROM TweetObject as t ORDER BY t.popularity DESC";
+            jql = "SELECT t FROM TweetEntity as t ORDER BY t.popularity DESC";
         } else {
-            jql = "SELECT t FROM TweetObject as t ORDER BY t.creationDate DESC";
+            jql = "SELECT t FROM TweetEntity as t ORDER BY t.creationDate DESC";
         }
 
         try {

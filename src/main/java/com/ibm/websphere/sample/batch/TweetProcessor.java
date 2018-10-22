@@ -22,6 +22,7 @@ import javax.batch.api.chunk.ItemProcessor;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
+import com.ibm.websphere.sample.jpa.TweetEntity;
 import com.ibm.websphere.sample.watson.LanguageAnalyzer;
 import com.ibm.websphere.sample.watson.SentimentObject;
 
@@ -30,7 +31,7 @@ import twitter4j.User;
 
 /**
  * This class implements an ItemProcessor to process Twitter Status objects.
- * Selected fields from the Status object are moved into a JPA persistent object (TweetObject).
+ * Selected fields from the Status object are moved into a JPA persistent object (TweetEntity).
  * If Watson connection information is available, a SentimentObject will be created based on
  * Watson analysis of the tweet text.
  * 
@@ -70,7 +71,7 @@ public class TweetProcessor implements ItemProcessor {
 		}
 		
 		Status status = (Status)arg0;
-    	TweetObject to = new TweetObject();
+    	TweetEntity to = new TweetEntity();
 		
 		Status quotedStatus = status.getQuotedStatus();
 		Status retweetStatus = status.getRetweetedStatus();
