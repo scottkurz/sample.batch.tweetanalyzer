@@ -46,7 +46,7 @@ public class TweetService {
     @GET
     @Path("/")
     @Produces({ MediaType.APPLICATION_JSON })
-    public String getTestTweets(@QueryParam("from") Integer startingPoint, @QueryParam("to") Integer endingPoint,
+    public String fetchTweets(@QueryParam("from") Integer startingPoint, @QueryParam("to") Integer endingPoint,
             @QueryParam("orderBy") String category) {
 
         // hardcoded for now...pagination via front end later

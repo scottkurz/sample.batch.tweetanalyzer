@@ -33,10 +33,6 @@ public class TweetEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "DBID")
-    private long dbId;
-
     @Column(name = "STATUS_ID")
     private long statusId;
 
@@ -236,7 +232,7 @@ public class TweetEntity implements Serializable {
     /**
      * An internal method used to set the popularity whenever it needs it
      */
-    private void setPopularity() {
+    private void updatePopularity() {
         this.popularity = this.favoriteCount + this.retweetCount;
     }
 
@@ -247,7 +243,7 @@ public class TweetEntity implements Serializable {
      */
     public void setFavoriteCount(long favoriteCount) {
         this.favoriteCount = favoriteCount;
-        setPopularity();
+        updatePopularity();
     }
 
     /**
@@ -265,7 +261,7 @@ public class TweetEntity implements Serializable {
      */
     public void setRetweetCount(long retweetCount) {
         this.retweetCount = retweetCount;
-        setPopularity();
+        updatePopularity();
     }
 
     /**
@@ -344,7 +340,6 @@ public class TweetEntity implements Serializable {
 
     @Override
     public String toString() {
-        return "";
-        // return "Tweet ID: " + statusId + ", content=" + textContent; // old
+        return "Tweet ID: " + statusId;
     }
 }
