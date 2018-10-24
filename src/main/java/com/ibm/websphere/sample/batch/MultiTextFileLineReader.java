@@ -46,207 +46,206 @@ import com.ibm.websphere.sample.jpa.TweetDataObject;
  */
 @Dependent
 public class MultiTextFileLineReader implements ItemReader {
-    
-    private static final Logger log = Logger.getLogger( MultiTextFileLineReader.class.getName() );
 
-    @Inject
-    @BatchProperty(name = "inputDir")
-    String inputDir;
-    
-    @Inject
-    @BatchProperty(name = "inputExt")
-    String inputExt;
-    
-    private ReaderState rs;
-    
-    
-    private FileReader fr;
-    private BufferedReader br;
-    
-    /**
-     * An inner class used to contain information needed for a restart.
-     * We are assuming the contents of the directory don't change across a restart/rollback. 
-     */
-    private class ReaderState implements Serializable {
+	private static final Logger log = Logger.getLogger( MultiTextFileLineReader.class.getName() );
 
-        private static final long serialVersionUID = -5400406421952921947L;
-        private LinkedList<String> listOfFiles;
-        private int currentFileIndex;
-        private int currentRecord;
-        
-        public void listOfFiles(LinkedList<String> l) {
-            listOfFiles = l;
-        }
-        public String[] listOfFiles() {
-            return (String[])listOfFiles.toArray(new String[0]);
-        }
-        
-        public void currentFileIndex(int cfi) {
-            currentFileIndex = cfi;
-        }
-        public int currentFileIndex() {
-            return currentFileIndex;
-        }
-        public void incrementCurrentFileIndex() {
-            ++currentFileIndex;
-        }
-        public int currentRecord() {
-            return currentRecord;
-        }
-        public void currentRecord(int i) {
-            currentRecord = i;
-        }
-        public void incrementCurrentRecord() {
-            ++currentRecord;
-        }
-        
-        private void writeObject(java.io.ObjectOutputStream stream) throws IOException {
-            stream.writeObject(listOfFiles);
-            stream.writeInt(currentFileIndex);
-            stream.writeInt(currentRecord);
-        }
-        
-        private void readObject(java.io.ObjectInputStream stream) throws IOException, ClassNotFoundException {
-            listOfFiles = (LinkedList<String>)stream.readObject();
-            currentFileIndex = stream.readInt();
-            currentRecord = stream.readInt();
-        }
-        
-        
-    }
-    
-    @Override
-    public Serializable checkpointInfo() throws Exception {
-        return rs;
-    }
+	@Inject
+	@BatchProperty(name = "inputDir")
+	String inputDir;
 
-    @Override
-    public void close() throws Exception {
-        if (br != null) {
-        	br.close();
-        }
-        if (fr != null) {
-        	fr.close();
-        }
+	@Inject
+	@BatchProperty(name = "inputExt")
+	String inputExt;
 
-    }
-
-    @Override
-    public void open(Serializable arg0) throws Exception {
-        
-        if (arg0!=null) {
-            // Restarting from a checkpoint, so get our saved status
-            rs = (ReaderState)arg0;
-            // Open up the then-current file to read
-            fr = new FileReader(rs.listOfFiles()[rs.currentFileIndex()]);
-            br = new BufferedReader(br);
-            // Skim through the file to get to last record read at the last checkpoint
-            int recNum = 0;
-            while (recNum<rs.currentRecord()) {
-                // Read and discard record we've already processed
-                String line = br.readLine();
-                ++recNum;
-            }
-            
-            log.log(Level.INFO, "reading "+rs.listOfFiles()[rs.currentFileIndex()]+
-                      " starting at record "+rs.currentFileIndex());                
-    
-        } else {
-            // Starting from scratch
-            rs = new ReaderState();
-            
-            // Get the list of files from the input directory
-            File sourceFolder = new File(inputDir);
-            File[] listOfFiles = sourceFolder.listFiles();
-            if (listOfFiles != null) {
-                LinkedList<String> ll = new LinkedList<String>();
-                for (int i=0;i<listOfFiles.length;++i) {
-                    if ((listOfFiles[i].isFile()) && (listOfFiles[i].getName().endsWith(inputExt))) {
-                        ll.add(listOfFiles[i].getCanonicalPath());
-                    }
-                }
-                rs.listOfFiles(ll);
-            } else {
-                String excMessage = "Bad input directory. Directory: " + inputDir + " unable to be opened as source of stored tweet files";
-                log.log(Level.SEVERE, excMessage);
-                throw new IllegalArgumentException(excMessage);
-            }
-            
-            // Start at the beginning of the list
-            rs.currentFileIndex(0);
-            rs.currentRecord(0);
-            setupNextFile();
-            
-        }
-    
-    }
+	private ReaderState rs;
 
 
-    
-    /**
-     * Reads the next object.
-     * Assumes any IOException is caused by reaching the end of the current file.
-     * If that happens it tries to move to the next file by calling setupNextFile( ).
-     * If it can't read an object from that file, we give up
-     * Returns null when we run out of files
-     * @return a Status object or null 
-     */
-    @Override
-    public Object readItem() throws Exception {
-        
-        String line;
-        try {
-        	line = br.readLine();
-        	rs.incrementCurrentRecord();
-        } catch (IOException iox) {
-        	br.close();
-        	fr.close();
-            // increment index and try to set up another file
-            rs.incrementCurrentFileIndex();
-            rs.currentRecord(0);  // new file, reset the record number to zero
-            boolean gotAnotherFile = setupNextFile();
-            if (gotAnotherFile) {
-                // got another file, read from it
-                try {
-                    line = br.readLine();
-                    rs.incrementCurrentRecord();
-                } catch (IOException iox2) {
-                    line = null;
-                }
-            } else {
-                // no more files
-                line = null;
-                log.log(Level.INFO, "No more files");
-            }
-        }
-        return line == null ? null : deserialize(line);
-        
-    }
-    
-    private TweetDataObject deserialize(String line) {
+	private FileReader fr;
+	private BufferedReader br;
+
+	/**
+	 * An inner class used to contain information needed for a restart.
+	 * We are assuming the contents of the directory don't change across a restart/rollback. 
+	 */
+	private class ReaderState implements Serializable {
+
+		private static final long serialVersionUID = -5400406421952921947L;
+		private LinkedList<String> listOfFiles;
+		private int currentFileIndex;
+		private int currentRecord;
+		private boolean noMoreInputFiles = false;
+
+		public void listOfFiles(LinkedList<String> l) {
+			listOfFiles = l;
+		}
+		public String[] listOfFiles() {
+			return (String[])listOfFiles.toArray(new String[0]);
+		}
+
+		public void currentFileIndex(int cfi) {
+			currentFileIndex = cfi;
+		}
+		public int currentFileIndex() {
+			return currentFileIndex;
+		}
+		public void incrementCurrentFileIndex() {
+			++currentFileIndex;
+		}
+		public int currentRecord() {
+			return currentRecord;
+		}
+		public void currentRecord(int i) {
+			currentRecord = i;
+		}
+		public void incrementCurrentRecord() {
+			++currentRecord;
+		}
+
+		private void writeObject(java.io.ObjectOutputStream stream) throws IOException {
+			stream.writeObject(listOfFiles);
+			stream.writeInt(currentFileIndex);
+			stream.writeInt(currentRecord);
+		}
+
+		private void readObject(java.io.ObjectInputStream stream) throws IOException, ClassNotFoundException {
+			listOfFiles = (LinkedList<String>)stream.readObject();
+			currentFileIndex = stream.readInt();
+			currentRecord = stream.readInt();
+		}
+
+
+	}
+
+	@Override
+	public Serializable checkpointInfo() throws Exception {
+		return rs;
+	}
+
+	@Override
+	public void close() throws Exception {
+		if (br != null) {
+			br.close();
+		}
+		if (fr != null) {
+			fr.close();
+		}
+
+	}
+
+	@Override
+	public void open(Serializable arg0) throws Exception {
+
+		if (arg0!=null) {
+			// Restarting from a checkpoint, so get our saved status
+			rs = (ReaderState)arg0;
+			// Open up the then-current file to read
+			fr = new FileReader(rs.listOfFiles()[rs.currentFileIndex()]);
+			br = new BufferedReader(br);
+			// Skim through the file to get to last record read at the last checkpoint
+			int recNum = 0;
+			while (recNum<rs.currentRecord()) {
+				// Read and discard record we've already processed
+				String line = br.readLine();
+				++recNum;
+			}
+
+			log.log(Level.INFO, "reading "+rs.listOfFiles()[rs.currentFileIndex()]+
+					" starting at record "+rs.currentFileIndex());                
+
+		} else {
+			// Starting from scratch
+			rs = new ReaderState();
+
+			// Get the list of files from the input directory
+			File sourceFolder = new File(inputDir);
+			File[] listOfFiles = sourceFolder.listFiles();
+			if (listOfFiles != null) {
+				LinkedList<String> ll = new LinkedList<String>();
+				for (int i=0;i<listOfFiles.length;++i) {
+					if ((listOfFiles[i].isFile()) && (listOfFiles[i].getName().endsWith(inputExt))) {
+						ll.add(listOfFiles[i].getCanonicalPath());
+					}
+				}
+				rs.listOfFiles(ll);
+			} else {
+				String excMessage = "Bad input directory. Directory: " + inputDir + " unable to be opened as source of stored tweet files";
+				log.log(Level.SEVERE, excMessage);
+				throw new IllegalArgumentException(excMessage);
+			}
+
+			// Start at the beginning of the list
+			rs.currentFileIndex(0);
+			rs.currentRecord(0);
+			setupNextFile();
+
+		}
+
+	}
+
+
+
+	/**
+	 * Reads the next object.
+	 * Assumes any IOException is caused by reaching the end of the current file.
+	 * If that happens it tries to move to the next file by calling setupNextFile( ).
+	 * If it can't read an object from that file, we give up
+	 * Returns null when we run out of files
+	 * @return a Status object or null 
+	 */
+	@Override
+	public Object readItem() throws Exception {
+
+		String line = null;
+
+		while (!rs.noMoreInputFiles && line == null) {
+			try {
+				line = br.readLine();      	
+				if (line == null) {
+					setupNextFile();
+				} 
+			} catch (IOException iox) {
+				br.close();
+				fr.close();
+				throw new RuntimeException("Caught exc in readItem", iox);
+			}
+		}
+		
+		if (line != null) {
+			rs.incrementCurrentRecord();
+			return deserialize(line);
+		} else {
+			return null;
+		}
+	}
+
+	private TweetDataObject deserialize(String line) {
 		Jsonb jsonb = JsonbBuilder.create();
 		return jsonb.fromJson(line, TweetDataObject.class);
 	}
 
 	/**
-     * Called when we're looking for the next file to process.  This looks at the list in our 
-     * read status and tries to set up an ObjectInputStream for it.
-     * @return true if it worked, false if we ran out of files
-     * @throws IOException For errors opening a file in the list
-     */
-    private boolean setupNextFile() throws IOException {
-        boolean retVal;
-        if (rs.currentFileIndex()<rs.listOfFiles().length) {
-            String s = rs.listOfFiles()[rs.currentFileIndex()];
-                fr = new FileReader(s);
-                br = new BufferedReader(fr);        
-                log.log(Level.INFO, "reading "+s);                
-                retVal=true;
-        } else {
-            // no more files
-            retVal=false;
-        }
-        return retVal;
-    }    
+	 * Called when we're looking for the next file to process.  This looks at the list in our 
+	 * read status and tries to set up an ObjectInputStream for it.
+	 * @throws IOException For errors opening a file in the list
+	 */
+	private void setupNextFile() throws IOException {
+		// Close previous readers
+		if (br != null) {
+			br.close();
+		} if (fr != null) {
+			fr.close();
+		}
 
+		if (rs.currentFileIndex() < rs.listOfFiles().length) {
+			String s = rs.listOfFiles()[rs.currentFileIndex()];
+			fr = new FileReader(s);
+			br = new BufferedReader(fr);        
+			log.log(Level.INFO, "reading "+s);                
+			rs.incrementCurrentFileIndex();
+			rs.currentRecord(0);  // new file, reset the record number to zero
+		} else {
+			log.log(Level.INFO, "No more files");
+			rs.noMoreInputFiles = true;
+		}
+	}    
 }
