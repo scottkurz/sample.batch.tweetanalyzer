@@ -19,15 +19,29 @@ package com.ibm.websphere.sample.watson;
 
 import java.io.Serializable;
 
+import javax.persistence.Basic;
+import javax.persistence.Column;
+import javax.persistence.Embeddable;
+
 /**
  * A container class to hold the results of IBM Watson sentiment analysis
  * @author Cassandra Newcomer
  */
+@Embeddable
 public class SentimentObject implements Serializable {
 
 	private static final long serialVersionUID = 8780143987952920718L;
+
+	@Basic
+    @Column(name = "SENTIMENT_LABEL")
 	String sentimentLabel;
+
+	@Basic
+    @Column(name = "SENTIMENT_SCORE")
     Double sentimentScore;
+
+	@Basic
+    @Column(name = "SENTIMENT_EMOJI")
     String sentimentEmoji;
 
     /**

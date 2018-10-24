@@ -22,6 +22,7 @@ import java.util.Date;
 import javax.json.bind.annotation.JsonbDateFormat;
 import javax.json.bind.annotation.JsonbProperty;
 import javax.persistence.Column;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Lob;
@@ -34,7 +35,7 @@ import com.ibm.websphere.sample.watson.SentimentObject;
  * @author Cassandra Newcomer
  */
 @Entity
-@Table(name = "TWEETS", schema = "TWITTERCOLLECTION")
+@Table(name = "TWEETS", schema = "TWITTER")
 public class TweetDataObject implements Serializable {
     private static final long serialVersionUID = 1L;
 	private static final String dateTimeFormatPattern = "yyyy/MM/dd HH:mm:ss z";
@@ -89,7 +90,7 @@ public class TweetDataObject implements Serializable {
 //    @Column(name = "QUOTED_AUTHOR_REAL_NAME")
 //    String quotedAuthorRealName;
 
-    @Column(name = "SENTIMENT")
+    @Embedded
     private SentimentObject sentiment;
 
     @Column(name = "LOCATION")
