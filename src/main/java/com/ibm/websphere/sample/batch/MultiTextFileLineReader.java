@@ -70,8 +70,12 @@ public class MultiTextFileLineReader implements ItemReader {
 	private class ReaderState implements Serializable {
 
 		private static final long serialVersionUID = -5400406421952921947L;
+
+		// Since we use 0-indexed counting, we want to increment to 0 along with opening the first new file, so start at -1 
+		private static final int NOT_READ_ANYTHING_YET = -1;
+
 		private LinkedList<String> listOfFiles;
-		private int currentFileIndex;
+		private int currentFileIndex = NOT_READ_ANYTHING_YET;
 		private int currentRecord;
 		private boolean noMoreInputFiles = false;
 
@@ -82,20 +86,8 @@ public class MultiTextFileLineReader implements ItemReader {
 			return (String[])listOfFiles.toArray(new String[0]);
 		}
 
-		public void currentFileIndex(int cfi) {
-			currentFileIndex = cfi;
-		}
-		public int currentFileIndex() {
-			return currentFileIndex;
-		}
 		public void incrementCurrentFileIndex() {
 			++currentFileIndex;
-		}
-		public int currentRecord() {
-			return currentRecord;
-		}
-		public void currentRecord(int i) {
-			currentRecord = i;
 		}
 		public void incrementCurrentRecord() {
 			++currentRecord;
@@ -118,6 +110,9 @@ public class MultiTextFileLineReader implements ItemReader {
 
 	@Override
 	public Serializable checkpointInfo() throws Exception {
+		log.log(Level.FINE, "Checkpointing at file index # "+ rs.currentFileIndex +
+				" after record # " + rs.currentRecord);                
+
 		return rs;
 	}
 
@@ -139,18 +134,17 @@ public class MultiTextFileLineReader implements ItemReader {
 			// Restarting from a checkpoint, so get our saved status
 			rs = (ReaderState)arg0;
 			// Open up the then-current file to read
-			fr = new FileReader(rs.listOfFiles()[rs.currentFileIndex()]);
-			br = new BufferedReader(br);
+			fr = new FileReader(rs.listOfFiles()[rs.currentFileIndex]);
+			br = new BufferedReader(fr);
 			// Skim through the file to get to last record read at the last checkpoint
 			int recNum = 0;
-			while (recNum<rs.currentRecord()) {
+			while (recNum < rs.currentRecord) {
 				// Read and discard record we've already processed
 				String line = br.readLine();
 				++recNum;
 			}
 
-			log.log(Level.INFO, "reading "+rs.listOfFiles()[rs.currentFileIndex()]+
-					" starting at record "+rs.currentFileIndex());                
+			log.log(Level.INFO, "reading file # " + rs.currentFileIndex + ", starting after record # "+rs.currentRecord + " file = " + rs.listOfFiles()[rs.currentFileIndex]);                
 
 		} else {
 			// Starting from scratch
@@ -173,16 +167,9 @@ public class MultiTextFileLineReader implements ItemReader {
 				throw new IllegalArgumentException(excMessage);
 			}
 
-			// Start at the beginning of the list
-			rs.currentFileIndex(0);
-			rs.currentRecord(0);
 			setupNextFile();
-
 		}
-
 	}
-
-
 
 	/**
 	 * Reads the next object.
@@ -206,7 +193,7 @@ public class MultiTextFileLineReader implements ItemReader {
 			} catch (IOException iox) {
 				br.close();
 				fr.close();
-				throw new RuntimeException("Caught exc in readItem", iox);
+				throw new RuntimeException("Caught exception in readItem", iox);
 			}
 		}
 		
@@ -229,20 +216,20 @@ public class MultiTextFileLineReader implements ItemReader {
 	 * @throws IOException For errors opening a file in the list
 	 */
 	private void setupNextFile() throws IOException {
+		
 		// Close previous readers
 		if (br != null) {
 			br.close();
 		} if (fr != null) {
 			fr.close();
 		}
-
-		if (rs.currentFileIndex() < rs.listOfFiles().length) {
-			String s = rs.listOfFiles()[rs.currentFileIndex()];
+		
+		if (++rs.currentFileIndex < rs.listOfFiles().length) {
+			String s = rs.listOfFiles()[rs.currentFileIndex];
 			fr = new FileReader(s);
 			br = new BufferedReader(fr);        
 			log.log(Level.INFO, "reading "+s);                
-			rs.incrementCurrentFileIndex();
-			rs.currentRecord(0);  // new file, reset the record number to zero
+			rs.currentRecord = 0;  // new file, reset the record number to zero
 		} else {
 			log.log(Level.INFO, "No more files");
 			rs.noMoreInputFiles = true;

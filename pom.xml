@@ -165,6 +165,7 @@
                 <configuration>
                     <assemblyArtifact>
                         <groupId>com.ibm.websphere.appserver.runtime</groupId>
+                        <!-- Seems to provide the fastest install given the needed features -->
                         <artifactId>wlp-webProfile8</artifactId>
                         <version>18.0.0.3</version>
                         <type>zip</type>
