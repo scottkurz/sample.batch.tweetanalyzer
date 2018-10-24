@@ -21,17 +21,16 @@ import javax.batch.api.BatchProperty;
 import javax.batch.api.chunk.ItemProcessor;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
+import javax.json.bind.Jsonb;
+import javax.json.bind.JsonbBuilder;
 
-import com.ibm.websphere.sample.jpa.TweetEntity;
+import com.ibm.websphere.sample.jpa.TweetDataObject;
 import com.ibm.websphere.sample.watson.LanguageAnalyzer;
 import com.ibm.websphere.sample.watson.SentimentObject;
 
-import twitter4j.Status;
-import twitter4j.User;
-
 /**
  * This class implements an ItemProcessor to process Twitter Status objects.
- * Selected fields from the Status object are moved into a JPA persistent object (TweetEntity).
+ * Selected fields from the Status object are moved into a JPA persistent object (TweetDataObject).
  * If Watson connection information is available, a SentimentObject will be created based on
  * Watson analysis of the tweet text.
  * 
@@ -39,7 +38,7 @@ import twitter4j.User;
  * @author David Follis
  */
 @Dependent
-public class TweetProcessor implements ItemProcessor {
+public class SentimentAnalysisProcessor implements ItemProcessor {
 	
 	LanguageAnalyzer la = null;
 
@@ -58,7 +57,9 @@ public class TweetProcessor implements ItemProcessor {
     }
 
 	@Override
-	public Object processItem(Object arg0) throws Exception {
+	public Object processItem(Object readItem) throws Exception {
+
+		TweetDataObject to = (TweetDataObject)readItem; 
 		
 		// First time through, see if we can use Watson
 		if ((useWatson==true)&&(la==null)) {
@@ -70,40 +71,22 @@ public class TweetProcessor implements ItemProcessor {
 			}
 		}
 		
-		Status status = (Status)arg0;
-    	TweetEntity to = new TweetEntity();
-		
-		Status quotedStatus = status.getQuotedStatus();
-		Status retweetStatus = status.getRetweetedStatus();
-		  
-		// if quoted use the quoted tweet instead
-		if (quotedStatus!=null) {
-			status = quotedStatus;
-		}
-		
-		// if retweet use the original tweet 
-		if (retweetStatus!=null) {
-			  to.setRetweetStatus(true);
-			  status = retweetStatus;
-		  }
-		else {
-			to.setRetweetStatus(false);
-		}				
+	
     	
 		// Get info about the tweet
-    	to.setDate(status.getCreatedAt());
-        to.setStatusId(status.getId());
-        to.setFavoriteCount(status.getFavoriteCount());
-        to.setRetweetCount(status.getRetweetCount());
-        to.setTextContent(status.getText());
-        
-        // Get info about who tweeted it
-        User user = status.getUser();
-        to.setAccountId(user.getId());
-        to.setRealName(user.getName());
-        to.setScreenName(user.getScreenName());
-        to.setNumberOfFollowers(user.getFollowersCount());
-        to.setAccountLocation(user.getLocation());        
+//    	to.setDate(status.getCreatedAt());
+//        to.setStatusId(status.getId());
+//        to.setFavoriteCount(status.getFavoriteCount());
+//        to.setRetweetCount(status.getRetweetCount());
+//        to.setTextContent(status.getText());
+//        
+//        // Get info about who tweeted it
+//        User user = status.getUser();
+//        to.setAccountId(user.getId());
+//        to.setRealName(user.getName());
+//        to.setScreenName(user.getScreenName());
+//        to.setNumberOfFollowers(user.getFollowersCount());
+//        to.setAccountLocation(user.getLocation());        
         
         // If we're set up to use Watson, get some sentiment analysis done
         if (useWatson) {

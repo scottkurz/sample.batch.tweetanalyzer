@@ -29,7 +29,7 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
-import com.ibm.websphere.sample.jpa.TweetEntity;
+import com.ibm.websphere.sample.jpa.TweetDataObject;
 
 
 /**
@@ -88,7 +88,7 @@ public class TweetObjectJPAWriter implements ItemWriter {
                 // Loop through all the items
                 for (int i = 0; i < arg0.size(); i++) {
 
-                    TweetEntity tw = (TweetEntity) arg0.get(i);
+                    TweetDataObject tw = (TweetDataObject) arg0.get(i);
 
                     log.log(Level.FINER, "writing tweet "+tw.getTextContent());
                     
@@ -110,21 +110,21 @@ public class TweetObjectJPAWriter implements ItemWriter {
 
     /**
      * Persist a tweet into the database
-     * @param newTweet The TweetEntity containing information about the tweet
+     * @param newTweet The TweetDataObject containing information about the tweet
      */
-    public void persistTweet(TweetEntity newTweet) {
+    public void persistTweet(TweetDataObject newTweet) {
         try {
             // Is this tweet already in the database?  
             boolean alreadyExists = entityManager
-            .createQuery("SELECT f.statusId FROM TweetEntity f WHERE f.statusId = " +
+            .createQuery("SELECT f.statusId FROM TweetDataObject f WHERE f.statusId = " +
             newTweet.getStatusId())
             .setMaxResults(1).getResultList().isEmpty() ? false : true;
             
             // Skip if a duplicate in the database, but update the retweet/favorite counts
             if (alreadyExists) {
 
-            TweetEntity loadedTweet = (TweetEntity) entityManager
-                    .createQuery("SELECT t FROM TweetEntity t WHERE t.statusId = " + newTweet.getStatusId())
+            TweetDataObject loadedTweet = (TweetDataObject) entityManager
+                    .createQuery("SELECT t FROM TweetDataObject t WHERE t.statusId = " + newTweet.getStatusId())
                     .getSingleResult();
 
                 Long oldFavs = loadedTweet.getFavoriteCount();

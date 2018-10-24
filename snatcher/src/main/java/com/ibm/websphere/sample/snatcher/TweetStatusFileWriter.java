@@ -18,11 +18,16 @@ package com.ibm.websphere.sample.snatcher;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.ObjectOutputStream;
+import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import javax.json.bind.Jsonb;
+import javax.json.bind.JsonbBuilder;
+import javax.json.bind.JsonbConfig;
+
 import twitter4j.Status;
+import twitter4j.TwitterObjectFactory;
 
 /**
  * Writes a tweet to a file.  A new file is created for tweets within the same minute.
@@ -33,10 +38,10 @@ import twitter4j.Status;
 public class TweetStatusFileWriter {
 	
     private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd__HH-mm");
-    private String fe = ".txt";
+    private String ext = ".dat";
     private String stringCurrentDate = null;
     private FileOutputStream fos;
-    private ObjectOutputStream oos;
+    private PrintWriter pw;
 
     /**
      * Default constructor
@@ -64,20 +69,45 @@ public class TweetStatusFileWriter {
     			// first time here
     			stringCurrentDate = sdf.format(date);
     			System.out.print(stringCurrentDate+" ");
-    			fos = new FileOutputStream("tweets/tweetArchive-" + stringDate + fe);
-    			oos = new ObjectOutputStream(fos);
+    			fos = new FileOutputStream("tweets/tweetArchive-" + stringDate + ext);
+    			pw = new PrintWriter(fos, true);
     		} else if (!(stringDate.equals(stringCurrentDate))) {
     			// new file
     			System.out.print("\n"+stringDate+" ");
     			stringCurrentDate = sdf.format(date);
     			fos.close();
-    			oos.close();
-    			fos = new FileOutputStream("tweets/tweetArchive-" + stringDate + fe);
-    			oos = new ObjectOutputStream(fos);
+    			pw.close();
+    			fos = new FileOutputStream("tweets/tweetArchive-" + stringDate + ext);
+    			pw = new PrintWriter(fos, true);
     		}
     		
-    		System.out.print(".");
-    		oos.writeObject(status);      
+    		Status quotedStatus = status.getQuotedStatus();
+    		Status retweetStatus = status.getRetweetedStatus();
+    		
+    		//
+    		// if quoted, or a retweet use the original tweet instead
+    		//
+    		// I wonder why a recursive approach wasn't used instead of checking each 
+    		// but only to a single-layer of quoting/retweeting.  Maybe because the counts
+    		// are included as separate properties?
+    		//
+    		if (quotedStatus!=null) {
+    			status = quotedStatus;
+    		}
+    		if (retweetStatus!=null) {
+    			status = retweetStatus;
+ 			}    		
+    		
+    		System.out.print(".");  // So user can see something's happening
+    		
+    		
+    		// Use Adapter to serialize to JSON in a manner specific to this sample.
+
+    		Jsonb jsonb = JsonbBuilder.create(new JsonbConfig()
+    				.withNullValues(true)
+    			    .withAdapters(new StatusAdapter()));
+    		
+    		pw.println(jsonb.toJson(status,Status.class));
 
     	} catch (Exception e) {
     		e.printStackTrace();
@@ -90,7 +120,7 @@ public class TweetStatusFileWriter {
      */
     public void close() throws Exception {
     	fos.close();
-    	oos.close();
+    	pw.close();
     }
 	
 }

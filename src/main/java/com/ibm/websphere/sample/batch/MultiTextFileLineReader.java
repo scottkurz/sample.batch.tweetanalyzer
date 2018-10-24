@@ -16,12 +16,12 @@
  */
 package com.ibm.websphere.sample.batch;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.logging.Level;
@@ -31,27 +31,37 @@ import javax.batch.api.BatchProperty;
 import javax.batch.api.chunk.ItemReader;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
+import javax.json.bind.Jsonb;
+import javax.json.bind.JsonbBuilder;
+
+import com.ibm.websphere.sample.jpa.TweetDataObject;
 
 
 /**
  * An implementation of ItemReader that reads serialized serialized objects from a directory 
- * of files (ending in ".txt") containing such things.
+ * of files (ending in a specific file extension like ".json") containing such things.
  * 
  * @author Cassandra Newcomer
  * @author David Follis
  */
 @Dependent
-public class SerializedObjectMultiFileReader implements ItemReader {
+public class MultiTextFileLineReader implements ItemReader {
     
-    private static final Logger log = Logger.getLogger( SerializedObjectMultiFileReader.class.getName() );
+    private static final Logger log = Logger.getLogger( MultiTextFileLineReader.class.getName() );
 
     @Inject
     @BatchProperty(name = "inputDir")
     String inputDir;
     
+    @Inject
+    @BatchProperty(name = "inputExt")
+    String inputExt;
+    
     private ReaderState rs;
-    private FileInputStream fis;
-    private ObjectInputStream ois;
+    
+    
+    private FileReader fr;
+    private BufferedReader br;
     
     /**
      * An inner class used to contain information needed for a restart.
@@ -112,7 +122,13 @@ public class SerializedObjectMultiFileReader implements ItemReader {
 
     @Override
     public void close() throws Exception {
-        ois.close();        
+        if (br != null) {
+        	br.close();
+        }
+        if (fr != null) {
+        	fr.close();
+        }
+
     }
 
     @Override
@@ -122,13 +138,13 @@ public class SerializedObjectMultiFileReader implements ItemReader {
             // Restarting from a checkpoint, so get our saved status
             rs = (ReaderState)arg0;
             // Open up the then-current file to read
-            fis = new FileInputStream(rs.listOfFiles()[rs.currentFileIndex()]);
-            ois = new ObjectInputStream(fis);     
+            fr = new FileReader(rs.listOfFiles()[rs.currentFileIndex()]);
+            br = new BufferedReader(br);
             // Skim through the file to get to last record read at the last checkpoint
             int recNum = 0;
             while (recNum<rs.currentRecord()) {
                 // Read and discard record we've already processed
-                Object o = ois.readObject();
+                String line = br.readLine();
                 ++recNum;
             }
             
@@ -145,7 +161,7 @@ public class SerializedObjectMultiFileReader implements ItemReader {
             if (listOfFiles != null) {
                 LinkedList<String> ll = new LinkedList<String>();
                 for (int i=0;i<listOfFiles.length;++i) {
-                    if ((listOfFiles[i].isFile()) && (listOfFiles[i].getName().endsWith(".txt"))) {
+                    if ((listOfFiles[i].isFile()) && (listOfFiles[i].getName().endsWith(inputExt))) {
                         ll.add(listOfFiles[i].getCanonicalPath());
                     }
                 }
@@ -160,6 +176,7 @@ public class SerializedObjectMultiFileReader implements ItemReader {
             rs.currentFileIndex(0);
             rs.currentRecord(0);
             setupNextFile();
+            
         }
     
     }
@@ -177,14 +194,13 @@ public class SerializedObjectMultiFileReader implements ItemReader {
     @Override
     public Object readItem() throws Exception {
         
-        Object readObject = null;
+        String line;
         try {
-        readObject = ois.readObject();
-        rs.incrementCurrentRecord();
+        	line = br.readLine();
+        	rs.incrementCurrentRecord();
         } catch (IOException iox) {
-            // probably end-of-file...
-            // Close this file
-            ois.close();
+        	br.close();
+        	fr.close();
             // increment index and try to set up another file
             rs.incrementCurrentFileIndex();
             rs.currentRecord(0);  // new file, reset the record number to zero
@@ -192,23 +208,27 @@ public class SerializedObjectMultiFileReader implements ItemReader {
             if (gotAnotherFile) {
                 // got another file, read from it
                 try {
-                    readObject = ois.readObject();
+                    line = br.readLine();
                     rs.incrementCurrentRecord();
                 } catch (IOException iox2) {
-                    // well.. An empty file?  Give up...
-                    readObject=null;
+                    line = null;
                 }
             } else {
                 // no more files
-                readObject=null;
+                line = null;
                 log.log(Level.INFO, "No more files");
             }
         }
-        return readObject;
+        return line == null ? null : deserialize(line);
         
     }
     
-    /**
+    private TweetDataObject deserialize(String line) {
+		Jsonb jsonb = JsonbBuilder.create();
+		return jsonb.fromJson(line, TweetDataObject.class);
+	}
+
+	/**
      * Called when we're looking for the next file to process.  This looks at the list in our 
      * read status and tries to set up an ObjectInputStream for it.
      * @return true if it worked, false if we ran out of files
@@ -218,8 +238,8 @@ public class SerializedObjectMultiFileReader implements ItemReader {
         boolean retVal;
         if (rs.currentFileIndex()<rs.listOfFiles().length) {
             String s = rs.listOfFiles()[rs.currentFileIndex()];
-                fis = new FileInputStream(s);
-                ois = new ObjectInputStream(fis);        
+                fr = new FileReader(s);
+                br = new BufferedReader(fr);        
                 log.log(Level.INFO, "reading "+s);                
                 retVal=true;
         } else {

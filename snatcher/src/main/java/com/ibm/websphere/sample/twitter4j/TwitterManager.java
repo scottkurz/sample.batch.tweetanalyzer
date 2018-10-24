@@ -64,6 +64,12 @@ public class TwitterManager {
 	 * Note that we filter location roughly around New York City.  
 	 */
 	public void start() {
+
+		double NYC_LAT_SOUTH = 39.3682;
+		double NYC_LONG_WEST = -75.9374;
+		double NYC_LAT_NORTH = 42.0329;
+		double NYC_LONG_EAST = -71.7187;
+
     	PropertyConfiguration pc = new PropertyConfiguration(props);
     	TwitterStreamFactory tsf = new TwitterStreamFactory(pc);
     	twitterStream = tsf.getInstance();
@@ -71,7 +77,7 @@ public class TwitterManager {
         twitterStream.addListener(sl);
         FilterQuery tweetFilterQuery = new FilterQuery();
         tweetFilterQuery.track(filterString)
-                .locations(new double[][] { new double[] { 39.3682, -75.9374 }, new double[] { 42.0329, -71.7187 } })
+                .locations(new double[][] { new double[] {NYC_LAT_SOUTH, NYC_LONG_WEST}, new double[] {NYC_LAT_NORTH, NYC_LONG_EAST}})
                 .language(new String[] { "en" });
         twitterStream.filter(tweetFilterQuery);
 

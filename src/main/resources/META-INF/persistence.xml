@@ -20,7 +20,7 @@
     <persistence-unit name="tweet-persister" transaction-type="JTA">
         <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
         <jta-data-source>jdbc/tweetstorage</jta-data-source>
-        <class>com.ibm.websphere.sample.jpa.TweetEntity</class>
+        <class>com.ibm.websphere.sample.jpa.TweetDataObject</class>
         <exclude-unlisted-classes>false</exclude-unlisted-classes>     
         <properties>
             <property name="openjpa.jdbc.DBDictionary" value="derby" />

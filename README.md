@@ -71,7 +71,7 @@ First switch to the **snatcher** directory:
 
 then build and run with:
 
-```mvn clean compile exec:java -Dexec.args="/path/to/twitter.properties"``` 
+```mvn clean compile exec:java -Dexec.args="/path/to/twitter4j.properties"```
 
 This will use Twitter4J to start up a stream listening to Twitter for Tweets about the New York City subway system.
 

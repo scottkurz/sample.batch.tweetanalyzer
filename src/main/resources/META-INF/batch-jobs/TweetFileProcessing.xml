@@ -31,12 +31,13 @@
     </listeners>
     <step id="TweetReader">
         <chunk>
-            <reader ref="com.ibm.websphere.sample.batch.SerializedObjectMultiFileReader">
+            <reader ref="com.ibm.websphere.sample.batch.MultiTextFileLineReader">
                 <properties>
                     <property name="inputDir" value="#{jobParameters['inputDir']}?:#{jobProperties['defaultInputDir']};" />
+                    <property name="inputExt" value=".dat" />
                 </properties>
             </reader>
-            <processor ref="com.ibm.websphere.sample.batch.TweetProcessor">
+            <processor ref="com.ibm.websphere.sample.batch.SentimentAnalysisProcessor">
                 <properties>
                     <property name="useWatson" value="#{jobParameters['useWatson']}?:#{jobProperties['useWatson']};" />
                     <property name="WatsonPropFile" value="#{jobParameters['WatsonPropFile']}?:#{jobProperties['defaultWatsonPropFile']};" />

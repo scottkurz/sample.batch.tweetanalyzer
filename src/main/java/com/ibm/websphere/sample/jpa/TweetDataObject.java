@@ -19,7 +19,13 @@ package com.ibm.websphere.sample.jpa;
 import java.io.Serializable;
 import java.util.Date;
 
-import javax.persistence.*;
+import javax.json.bind.annotation.JsonbDateFormat;
+import javax.json.bind.annotation.JsonbProperty;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Lob;
+import javax.persistence.Table;
 
 import com.ibm.websphere.sample.watson.SentimentObject;
 
@@ -29,66 +35,77 @@ import com.ibm.websphere.sample.watson.SentimentObject;
  */
 @Entity
 @Table(name = "TWEETS", schema = "TWITTERCOLLECTION")
-public class TweetEntity implements Serializable {
+public class TweetDataObject implements Serializable {
     private static final long serialVersionUID = 1L;
+	private static final String dateTimeFormatPattern = "yyyy/MM/dd HH:mm:ss z";
 
     @Id
     @Column(name = "STATUS_ID")
+    @JsonbProperty("status_id")
     private long statusId;
 
     @Column(name = "ACCOUNT_ID")
+    @JsonbProperty("account_id")
     private long accountId;
 
     @Column(name = "SCREEN_NAME")
+    @JsonbProperty("screen_name")
     String screenName;
 
     @Column(name = "REAL_NAME")
+    @JsonbProperty("real_name")
     String realName;
 
     @Column(name = "NUMBER_OF_FOLLOWERS")
+    @JsonbProperty("followers_count")
     long numberOfFollowers;
 
     @Lob
     @Column(name = "TEXTCONTENT")
+    @JsonbProperty("text")
     private String textContent;
 
     @Column(name = "CREATION_DATE")
+    @JsonbProperty("creation_date")
+    @JsonbDateFormat(dateTimeFormatPattern)
     Date creationDate;
-
+    
     @Column(name = "FAVORITE_COUNT")
+    @JsonbProperty("favorite_count")
     long favoriteCount;
 
+
     @Column(name = "RETWEET_COUNT")
+    @JsonbProperty("retweet_count")
     long retweetCount;
 
     @Column(name = "POPULARITY")
     long popularity;
-
-    @Column(name = "IS_RETWEET")
-    boolean isRetweet;
-
-    @Column(name = "QUOTED_AUTHOR_SCREEN_NAME")
-    String quotedAuthorScreenName;
-
-    @Column(name = "QUOTED_AUTHOR_REAL_NAME")
-    String quotedAuthorRealName;
+    
+//
+//    @Column(name = "QUOTED_AUTHOR_SCREEN_NAME")
+//    String quotedAuthorScreenName;
+//
+//    @Column(name = "QUOTED_AUTHOR_REAL_NAME")
+//    String quotedAuthorRealName;
 
     @Column(name = "SENTIMENT")
-    SentimentObject sentiment;
+    private SentimentObject sentiment;
 
-    @Column(name = "ACCOUNT_LOCATION")
-    String accountLocation;
+    @Column(name = "LOCATION")
+    @JsonbProperty("location")
+    private String accountLocation;
 
     /**
      * Default constructor.  Sets string values to empty strings so users don't have to worry about getting nulls back.
      * Sets up a neutral SentimentObject by default also.
      * Everything else gets the Java defaults of zero/false.
      */
-    public TweetEntity() {
+    public TweetDataObject() {
         this.screenName = "";
         this.realName = "";
-        this.quotedAuthorRealName = "";
-        this.quotedAuthorScreenName = "";
+//        this.quotedAuthorRealName = "";
+//        this.quotedAuthorScreenName = "";
         this.textContent = "";
         this.sentiment = new SentimentObject();
     }
@@ -177,7 +194,7 @@ public class TweetEntity implements Serializable {
      * Sets the date the tweet was tweeted
      * @param date the creation Date object for when the tweet was tweeted
      */
-    public void setDate(Date date) {
+    public void setCreationDate(Date date) {
         this.creationDate = date;
     }
 
@@ -185,7 +202,7 @@ public class TweetEntity implements Serializable {
      * Gets the Date object for when the tweet was tweeted
      * @return The Date object when the tweet was created
      */
-    public Date getDate() {
+    public Date getCreationDate() {
         return this.creationDate;
     }
 
@@ -205,22 +222,22 @@ public class TweetEntity implements Serializable {
         return this.numberOfFollowers;
     }
 
-    /**
-     * Is this tweet a retweet of some other tweet
-     * @return true if it is, false if it isn't
-     */
-    public boolean checkIfRetweet() {
-        return this.isRetweet;
-    }
+//    /**
+//     * Is this tweet a retweet of some other tweet
+//     * @return true if it is, false if it isn't
+//     */
+//    public boolean checkIfRetweet() {
+//        return this.isRetweet;
+//    }
 
-    /**
-     * Sets the retweet status
-     * @param retweetStatus true if it is a retweet, false if not
-     */
-    public void setRetweetStatus(boolean retweetStatus) {
-        this.isRetweet = retweetStatus;
-    }
-
+//    /**
+//     * Sets the retweet status
+//     * @param retweetStatus true if it is a retweet, false if not
+//     */
+//    public void setRetweetStatus(boolean retweetStatus) {
+//        this.isRetweet = retweetStatus;
+//    }
+//
     /**
      * How popular is this tweet?  Total of favorites and retweets
      * @return A popularity measure for this tweet
@@ -272,71 +289,71 @@ public class TweetEntity implements Serializable {
         return this.retweetCount;
     }
 
-    /**
-     * Sets the screen name for the tweeter
-     * @param screenName The user's screen name
-     */
-    public void setScreenName(String screenName) {
-        this.screenName = screenName;
-    }
-
-    /**
-     * Gets the tweeter's screen name
-     * @return The user's screen name
-     */
-    public String getScreenName() {
-        return this.screenName;
-    }
-
-    /**
-     * Sets the tweeter's real name
-     * @param realName The tweeter's real name
-     */
-    public void setRealName(String realName) {
-        this.realName = realName;
-    }
-
-    /**
-     * Gets the tweeter's real name
-     * @return The tweeter's real name
-     */
-    public String getRealName() {
-        return this.realName;
-    }
-
-    /**
-     * If the tweet quoted another tweet, this is the screen name
-     * of the tweeter of the tweet that was quoted
-     * @param screenName screen name of the original tweeter
-     */
-    public void setQuotedAuthorScreenName(String screenName) {
-        this.quotedAuthorScreenName = screenName;
-    }
-
-    /**
-     * Returns the screen name of the tweeter of the tweet that is quoted 
-     * by this tweet
-     * @return The original tweeter's screen name
-     */
-    public String getQuotedAuthorScreenName() {
-        return this.quotedAuthorScreenName;
-    }
-
-    /**
-     * Sets the real name of the tweeter of the tweet quoted by this tweet
-     * @param realName The original author's real name
-     */
-    public void setQuotedAuthorRealName(String realName) {
-        this.quotedAuthorRealName = realName;
-    }
-
-    /**
-     * Gets the original tweeter's real name
-     * @return The real name of the original tweeter
-     */
-    public String getQuotedAuthorRealName() {
-        return this.quotedAuthorRealName;
-    }
+//    /**
+//     * Sets the screen name for the tweeter
+//     * @param screenName The user's screen name
+//     */
+//    public void setScreenName(String screenName) {
+//        this.screenName = screenName;
+//    }
+//
+//    /**
+//     * Gets the tweeter's screen name
+//     * @return The user's screen name
+//     */
+//    public String getScreenName() {
+//        return this.screenName;
+//    }
+//
+//    /**
+//     * Sets the tweeter's real name
+//     * @param realName The tweeter's real name
+//     */
+//    public void setRealName(String realName) {
+//        this.realName = realName;
+//    }
+//
+//    /**
+//     * Gets the tweeter's real name
+//     * @return The tweeter's real name
+//     */
+//    public String getRealName() {
+//        return this.realName;
+//    }
+//
+//    /**
+//     * If the tweet quoted another tweet, this is the screen name
+//     * of the tweeter of the tweet that was quoted
+//     * @param screenName screen name of the original tweeter
+//     */
+//    public void setQuotedAuthorScreenName(String screenName) {
+//        this.quotedAuthorScreenName = screenName;
+//    }
+//
+//    /**
+//     * Returns the screen name of the tweeter of the tweet that is quoted 
+//     * by this tweet
+//     * @return The original tweeter's screen name
+//     */
+//    public String getQuotedAuthorScreenName() {
+//        return this.quotedAuthorScreenName;
+//    }
+//
+//    /**
+//     * Sets the real name of the tweeter of the tweet quoted by this tweet
+//     * @param realName The original author's real name
+//     */
+//    public void setQuotedAuthorRealName(String realName) {
+//        this.quotedAuthorRealName = realName;
+//    }
+//
+//    /**
+//     * Gets the original tweeter's real name
+//     * @return The real name of the original tweeter
+//     */
+//    public String getQuotedAuthorRealName() {
+//        return this.quotedAuthorRealName;
+//    }
 
     @Override
     public String toString() {
