@@ -114,29 +114,19 @@ public class TweetObjectJPAWriter implements ItemWriter {
      */
     public void persistTweet(TweetDataObject newTweet) {
         try {
-            // Is this tweet already in the database?  
-            boolean alreadyExists = entityManager
-            .createQuery("SELECT f.statusId FROM TweetDataObject f WHERE f.statusId = " +
-            newTweet.getStatusId())
-            .setMaxResults(1).getResultList().isEmpty() ? false : true;
-            
-            // Skip if a duplicate in the database, but update the retweet/favorite counts
-            if (alreadyExists) {
-
-            TweetDataObject loadedTweet = (TweetDataObject) entityManager
-                    .createQuery("SELECT t FROM TweetDataObject t WHERE t.statusId = " + newTweet.getStatusId())
-                    .getSingleResult();
-
-                Long oldFavs = loadedTweet.getFavoriteCount();
-                Long newFavs = newTweet.getFavoriteCount();
-                Long oldRetweets = loadedTweet.getRetweetCount();
-                Long newRetweets = newTweet.getRetweetCount();
-                loadedTweet.setFavoriteCount(newFavs > oldFavs ? newFavs : oldFavs);
-                loadedTweet.setRetweetCount(newRetweets > oldRetweets ? newRetweets : oldRetweets);
-                
+        	
+            TweetDataObject loadedTweet = entityManager.find(TweetDataObject.class,  newTweet.getStatusId());
+        	
+            // If pre-existing, update the retweet/favorite counts
+            if (loadedTweet != null) {
+            	if (newTweet.getFavoriteCount() > loadedTweet.getFavoriteCount()) {
+            		loadedTweet.setFavoriteCount(newTweet.getFavoriteCount());
+            	}
+                if (newTweet.getRetweetCount() > loadedTweet.getRetweetCount()) {
+                	loadedTweet.setRetweetCount(newTweet.getRetweetCount());
+                }
                 entityManager.merge(loadedTweet);
             } else {
-                // New tweet
                 entityManager.persist(newTweet);
             }
         } catch (Exception e) {
