@@ -43,11 +43,14 @@ Go to the reacter folder and ```npm install```. Run ```npm start``` to preview y
 
 3. Copy over reacter build
 
-    `cp -r reacter/build/* src/main/webapp/ `
+    `mkdir src/main/webapp;  cp -r reacter/build/* src/main/webapp/ `
 
 4. Add new to Git
 
     `git add src/main/webapp/`
+
+5. Now add back .gitignore in src/main/webapp 
+(TODO - better procedure)
 
 Now proceed to do a commit, etc.
 
