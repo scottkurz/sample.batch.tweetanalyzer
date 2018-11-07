@@ -71,23 +71,6 @@ public class SentimentAnalysisProcessor implements ItemProcessor {
 			}
 		}
 		
-	
-    	
-		// Get info about the tweet
-//    	to.setDate(status.getCreatedAt());
-//        to.setStatusId(status.getId());
-//        to.setFavoriteCount(status.getFavoriteCount());
-//        to.setRetweetCount(status.getRetweetCount());
-//        to.setTextContent(status.getText());
-//        
-//        // Get info about who tweeted it
-//        User user = status.getUser();
-//        to.setAccountId(user.getId());
-//        to.setRealName(user.getName());
-//        to.setScreenName(user.getScreenName());
-//        to.setNumberOfFollowers(user.getFollowersCount());
-//        to.setAccountLocation(user.getLocation());        
-        
         // If we're set up to use Watson, get some sentiment analysis done
         if (useWatson) {
             try {
