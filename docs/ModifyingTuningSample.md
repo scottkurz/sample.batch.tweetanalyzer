@@ -49,9 +49,6 @@ Go to the reacter folder and ```npm install```. Run ```npm start``` to preview y
 
     `git add src/main/webapp/`
 
-5. Now add back .gitignore in src/main/webapp 
-(TODO - better procedure)
-
 Now proceed to do a commit, etc.
 
 ## NPM Audit
