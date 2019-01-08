@@ -45,17 +45,19 @@ Go to the reacter folder and ```npm install```. Run ```npm start``` to preview y
 
     `mkdir src/main/webapp;  cp -r reacter/build/* src/main/webapp/ `
 
-4. Add new to Git
+4. Now add back .gitignore in src/main/webapp 
+
+     `echo "/META-INF/" > src/main/webapp/.gitignore`
+
+5. Add changes to Git
 
     `git add src/main/webapp/`
 
-5. Now add back .gitignore in src/main/webapp 
-(TODO - better procedure)
-
-Now proceed to do a commit, etc.
+6. git commit, etc.
 
 ## NPM Audit
 
-As seen [here](https://docs.npmjs.com/getting-started/running-a-security-audit#running-a-security-audit-with-npm-audit), you can run `npm audit` and `npm audit fix` to resolve security issues with underlying dependencies.
+As seen [here](https://docs.npmjs.com/getting-started/running-a-security-audit#running-a-security-audit-with-npm-audit), you can run `npm audit` and `npm audit fix` to resolve security issues with underlying dependencies.   
 
-**TODO:**  Elaborate on this process.
+Then follow the modification process directly above (starting with "Do reacter build" since you already have npm installed).
+
