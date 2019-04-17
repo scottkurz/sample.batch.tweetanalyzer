@@ -33,9 +33,11 @@ Go to the reacter folder and ```npm install```. Run ```npm start``` to preview y
 
      ` npm install`
 
-1. Do reacter build
+1. Do reacter build (first after an audit update, second after a source code change):
 
-     `cd reacter; npm run build; cd --`
+     `cd reacter; npm audit fix; cd -`  
+           OR      
+     `cd reacter; npm run build; cd -`
 
 2. Delete old 
 
@@ -51,7 +53,7 @@ Go to the reacter folder and ```npm install```. Run ```npm start``` to preview y
 
 5. Add changes to Git
 
-    `git add src/main/webapp/`
+    `git add src/main/webapp reacter/package*`
 
 6. git commit, etc.
 
